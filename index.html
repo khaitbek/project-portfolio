@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+
+    <!-- projects -->
+    <section class="projects">
+        <div class="container">
+            <h1 class="text-center mt-5 fw-bold">Your projects</h1>
+
+            <ul class="projects-list" id="projectsList">
+                <template data-project>
+                    <li class="card mb-3">
+                        <div class="card-header">
+                            <img class="card-img-top" id="projectImg" alt="Project Logo">
+                        </div>
+                        <div class="card-body">
+                            <p id="projectName"></p>
+                            <p id="projectDesc"></p>
+                            <p id="projectLang"></p>
+                            <p id="projectTechnology"></p>
+                            <a class="link-primary me-3" id="projectSource">Source Code</a>
+                            <button class="btn btn-danger" id="deleteBtn">Delete project</button>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+
+            <a class="link-danger d-block text-center" href="./project.html">Add project</a>
+        </div>
+    </section>
+
+    <script>
+        const isUser = window.localStorage.getItem("user_token")
+        const projectsList = document.querySelector("#projectsList")
+
+        if (!isUser) {
+            window.location.href = "./login.html"
+        }
+        fetch("https://portfoliowebapi.herokuapp.com/api/project").then(res => res.json()).then(projects => {
+            projects.forEach(project => {
+                const projectTemplate = document.querySelector("[data-project]").content.cloneNode(true).children[0]
+                const projectName = projectTemplate.querySelector("#projectName")
+                const projectDesc = projectTemplate.querySelector("#projectDesc")
+                const projectLang = projectTemplate.querySelector("#projectLang")
+                const projectTechnology = projectTemplate.querySelector("#projectTechnology")
+                const projectSource = projectTemplate.querySelector("#projectSource")
+                const projectImg = projectTemplate.querySelector("#projectImg")
+                const deleteBtn = projectTemplate.querySelector("#deleteBtn")
+                projectImg.src = project.logoPath
+                projectName.textContent = project.name
+                projectDesc.textContent = project.description
+                projectSource.href = project.resursCode
+                projectsList.append(projectTemplate)
+                projectTemplate.setAttribute("data-id", project.id)
+
+                // add delete project functionality
+                deleteBtn.addEventListener("click", ()=> deleteProject(projectTemplate.dataset.id))
+            })
+        })
+
+        function deleteProject(projectId) {
+            console.log("This is id" + " " + projectId);
+            if (!projectId) return false
+            fetch(`https://portfoliowebapi.herokuapp.com/api/Project/${projectId}`,{
+                method:"DELETE",
+                headers: {
+                    "Authorization": `Bearer ${window.localStorage.getItem("user_token")}`
+                },
+            }).then(res => res.json()).then(data => console.log(data))
+        }
+    </script>
+</body>
+
+</html>

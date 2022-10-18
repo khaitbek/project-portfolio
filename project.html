@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+    <section class="login">
+        <div class="container">
+            <h2 class="text-center mt-5 fw-bold">Add project</h2>
+
+            <form id="projectForm" autocomplete="on">
+                <input class="form-control mb-3" id="projectName" name="name" type="tel"
+                    placeholder="enter your project's name" required>
+                <input class="form-control mb-3" id="projectLang" name="ProgLanguage" type="text"
+                    placeholder="enter your project's language" required>
+                <input class="form-control mb-3" id="projectTechnology" name="TechnologiesUsed" type="text"
+                    placeholder="enter the  languages you used in your project" required>
+                <input class="form-control mb-3" id="projectSource" name="ResursCode" type="text"
+                    placeholder="enter your project's source code link" required>
+                <input class="form-control mb-3" id="projectImg" name="Image" type="file"
+                    placeholder="enter your project's cover image" required>
+                <div class="alert alert-danger d-none text-bg-danger" id="alert"></div>
+
+                <a class="link-primary d-block text-center mb-3" href="./index.html">See all projects</a>
+                <button class="btn btn-lg d-block mx-auto btn-primary">Send</button>
+            </form>
+
+        </div>
+    </section>
+
+
+    <script>
+        const projectForm = document.querySelector("#projectForm")
+
+        const projectName = document.querySelector("#projectName")
+        const projectLang = document.querySelector("#projectLang")
+        const projectTechnology = document.querySelector("#projectTechnology")
+        const projectSource = document.querySelector("#projectSource")
+        const projectImg = document.querySelector("#projectImg")
+        const alertDiv = document.querySelector("#alert")
+
+        projectForm.addEventListener("submit", (evt) => {
+            evt.preventDefault()
+            const projectData = new FormData()
+            projectData.append("Name", projectName.value)
+            projectData.append("ProgLanguage", projectLang.value)
+            projectData.append("TechnologiesUsed", projectTechnology.value)
+            projectData.append("ResursCode", projectSource.value)
+            projectData.append("Image", projectImg.files[0])
+
+            fetch(`https://portfoliowebapi.herokuapp.com/api/project`, {
+                method: "post",
+                headers: {
+                    "Authorization": `Bearer ${window.localStorage.getItem("user_token")}`
+                },
+                body: projectData
+            }).then(res => res.json()).then(data => {
+                triggerAlert("Project added successfully!")
+                projectForm.reset()
+            })
+        })
+
+        function triggerAlert(msg = "Success") {
+            alertDiv.textContent = msg
+            alertDiv.classList.remove("d-none")
+            alertDiv.classList.add("d-block")
+        }
+
+    </script>
+</body>
+
+</html>
